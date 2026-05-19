@@ -12,6 +12,11 @@ async fn handle_connection(
     bcast_tx: Sender<String>,
 ) -> Result<(), Box<dyn Error + Send + Sync>> {
     let mut bcast_rx = bcast_tx.subscribe();
+    ws_stream
+        .send(Message::text(
+            "Awan's Computer - From server: Welcome to chat! Type a message",
+        ))
+        .await?;
 
     loop {
         tokio::select! {
@@ -22,8 +27,9 @@ async fn handle_connection(
 
                 let message = message?;
                 if let Some(text) = message.as_text() {
-                    println!("From {addr}: {text}");
-                    bcast_tx.send(text.to_owned())?;
+                    let sender_message = format!("{addr}: {text}");
+                    println!("From client {addr} \"{text}\"");
+                    bcast_tx.send(format!("Awan's Computer - From server: {sender_message}"))?;
                 }
             }
             broadcast = bcast_rx.recv() => {
@@ -45,7 +51,7 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     println!("listening on port 8080");
     loop {
         let (socket, addr) = listener.accept().await?;
-        println!("New connection from {addr:?}");
+        println!("New connection from Awan's Computer {addr}");
         let bcast_tx = bcast_tx.clone();
         tokio::spawn(async move {
             let (_req, ws_stream) = ServerBuilder::new().accept(socket).await?;

@@ -114,3 +114,58 @@ port 8080 from client 1
 port 8080 from client 2
 port 8080 from client 3
 ```
+
+## Experiment 2.3: Small changes, add IP and Port
+
+Pada eksperimen ini, server dimodifikasi agar pesan yang dibroadcast ke client memuat informasi pengirim.
+Sebelumnya server hanya mengirim isi pesan, misalnya `hello from client 1`.
+Setelah perubahan, server menggabungkan alamat socket pengirim dengan isi pesan sebelum dikirim ke broadcast channel.
+
+Perubahan dilakukan pada sisi server, tepatnya di bagian ketika server menerima pesan dari WebSocket client.
+Kode yang digunakan:
+
+```rust
+let sender_message = format!("{addr}: {text}");
+println!("From client {addr} \"{text}\"");
+bcast_tx.send(format!("Awan's Computer - From server: {sender_message}"))?;
+```
+
+Variabel `addr` berasal dari `listener.accept().await?`, sehingga nilainya berisi IP dan port client yang terhubung ke server.
+Karena setiap client memiliki port lokal yang berbeda, informasi ini dapat dipakai untuk membedakan pengirim pesan walaupun belum ada fitur username.
+Pesan yang dikirim ke semua client sekarang berformat `Awan's Computer - From server: 127.0.0.1:PORT: isi pesan`.
+Perubahan dilakukan di server karena server adalah pusat broadcast yang menerima pesan dari satu client lalu meneruskannya ke semua client.
+Selain itu, server juga mengirim pesan sambutan saat client baru berhasil terhubung.
+
+### Server 2.3
+
+![Server showing sender IP and port](images/server-2.3.png)
+
+### Client 1 2.3
+
+![Client 1 receiving messages with sender IP and port](images/client1-2.3.png)
+
+### Client 2 2.3
+
+![Client 2 receiving messages with sender IP and port](images/client2-2.3.png)
+
+### Client 3 2.3
+
+![Client 3 receiving messages with sender IP and port](images/client3-2.3.png)
+
+Hasil uji server setelah perubahan:
+
+```text
+listening on port 8080
+New connection from Awan's Computer 127.0.0.1:51591
+New connection from Awan's Computer 127.0.0.1:51592
+From client 127.0.0.1:51591 "hi"
+From client 127.0.0.1:51592 "hallo"
+```
+
+Hasil uji pada setiap client:
+
+```text
+Awan's Computer - From server: Welcome to chat! Type a message
+Awan's Computer - From server: 127.0.0.1:51591: hi
+Awan's Computer - From server: 127.0.0.1:51592: hallo
+```
