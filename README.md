@@ -156,16 +156,19 @@ Hasil uji server setelah perubahan:
 
 ```text
 listening on port 8080
-New connection from Awan's Computer 127.0.0.1:51591
-New connection from Awan's Computer 127.0.0.1:51592
-From client 127.0.0.1:51591 "hi"
-From client 127.0.0.1:51592 "hallo"
+New connection from Awan's Computer 127.0.0.1:51600
+New connection from Awan's Computer 127.0.0.1:51601
+New connection from Awan's Computer 127.0.0.1:51602
+From client 127.0.0.1:51600 "hi"
+From client 127.0.0.1:51601 "hallo"
+From client 127.0.0.1:51602 "hey"
 ```
 
 Hasil uji pada setiap client:
 
 ```text
 Awan's Computer - From server: Welcome to chat! Type a message
-Awan's Computer - From server: 127.0.0.1:51591: hi
-Awan's Computer - From server: 127.0.0.1:51592: hallo
+Awan's Computer - From server: 127.0.0.1:51600: hi
+Awan's Computer - From server: 127.0.0.1:51601: hallo
+Awan's Computer - From server: 127.0.0.1:51602: hey
 ```
