@@ -51,3 +51,66 @@ Pada sisi server, `tokio::select!` juga digunakan untuk menangani dua pekerjaan 
 Ketika sebuah client mengirim pesan, server menerima pesan tersebut melalui WebSocket dan meneruskannya ke broadcast channel.
 Setiap koneksi client memiliki receiver broadcast sendiri, sehingga semua client yang subscribe ke channel tersebut dapat menerima pesan yang sama.
 Karena itu, ketika satu client mengetik pesan, pesan tersebut muncul pada semua client yang sedang terhubung.
+
+## Experiment 2.2: Modifying port
+
+Pada eksperimen ini, port WebSocket diubah dari `2000` menjadi `8080`.
+Perubahan harus dilakukan pada dua sisi koneksi, yaitu server dan client.
+Pada sisi server, alamat bind diubah menjadi:
+
+```rust
+TcpListener::bind("127.0.0.1:8080")
+```
+
+Pada sisi client, URI WebSocket diubah menjadi:
+
+```rust
+Uri::from_static("ws://127.0.0.1:8080")
+```
+
+Server menggunakan `TcpListener` untuk membuka koneksi TCP pada alamat `127.0.0.1:8080`.
+Client menggunakan protokol WebSocket melalui URI `ws://127.0.0.1:8080`.
+Prefix `ws://` menunjukkan bahwa koneksi yang digunakan adalah WebSocket, bukan HTTP biasa.
+Port harus sama di kedua sisi karena client perlu melakukan koneksi ke alamat dan port yang sedang didengarkan oleh server.
+Jika server sudah berjalan pada port `8080`, tetapi client masih mencoba terhubung ke port `2000`, koneksi akan gagal karena tidak ada server yang menerima koneksi pada port tersebut.
+
+Setelah perubahan ini, server dapat dijalankan dengan perintah yang sama:
+
+```powershell
+cargo run --bin server
+```
+
+Server akan menampilkan:
+
+```text
+listening on port 8080
+```
+
+Client juga tetap dijalankan dengan perintah yang sama:
+
+```powershell
+cargo run --bin client
+```
+
+Setelah diuji kembali, aplikasi tetap berjalan dengan benar.
+Client dapat terhubung ke server pada port `8080`, mengirim pesan, dan menerima broadcast dari client lain seperti pada eksperimen sebelumnya.
+
+Hasil uji server setelah port diubah:
+
+```text
+listening on port 8080
+New connection from 127.0.0.1:65106
+New connection from 127.0.0.1:65108
+New connection from 127.0.0.1:65109
+From 127.0.0.1:65106: port 8080 from client 1
+From 127.0.0.1:65108: port 8080 from client 2
+From 127.0.0.1:65109: port 8080 from client 3
+```
+
+Hasil uji pada setiap client:
+
+```text
+port 8080 from client 1
+port 8080 from client 2
+port 8080 from client 3
+```
